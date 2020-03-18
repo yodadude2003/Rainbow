@@ -20,6 +20,7 @@ using System.Drawing;
 using Rainbow.ImgLib.Encoding.Implementation;
 using Rainbow.ImgLib.Common;
 using Rainbow.ImgLib.Filters;
+using SkiaSharp;
 
 // TODO: Fix interface of ColorCodec, supporting matrices/width x height inputs.
 namespace Rainbow.ImgLib.Encoding
@@ -57,12 +58,12 @@ namespace Rainbow.ImgLib.Encoding
         /// <param name="start">the position in the byte array from which to start.</param>
         /// <param name="length">How many bytes have to be considered. If the length is such that the last pixel cannot be completely decoded, then this pixel is discarded.</param>
         /// <returns></returns>
-        public abstract Color[] DecodeColors(byte[] colors, int start, int length);
+        public abstract SKColor[] DecodeColors(byte[] colors, int start, int length);
 
         /// <summary>
         /// See Color[] DecodeColors(byte[] colors, int start, int length) documentation.
         /// </summary>
-        public virtual Color[] DecodeColors(byte[] colors)
+        public virtual SKColor[] DecodeColors(byte[] colors)
         {
             return DecodeColors(colors, 0, colors.Length);
         }
@@ -73,14 +74,14 @@ namespace Rainbow.ImgLib.Encoding
         /// <param name="colors">The array of colors to be encoded.</param>
         /// <param name="start">The position of the first color to be encoded.</param>
         /// <param name="length">How many colors need to be encoded.</param>
-        public abstract byte[] EncodeColors(Color[] colors, int start, int length);
+        public abstract byte[] EncodeColors(SKColor[] colors, int start, int length);
 
         /// <summary>
         /// See byte[] EncodeColors(Color[] colors, int start, int length) documentation.
         /// </summary>
         /// <param name="colors"></param>
         /// <returns></returns>
-        public virtual byte[] EncodeColors(Color[] colors)
+        public virtual byte[] EncodeColors(SKColor[] colors)
         {
             return EncodeColors(colors, 0, colors.Length);
         }

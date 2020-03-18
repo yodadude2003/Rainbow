@@ -16,6 +16,7 @@
 //http://github.com/marco-calautti/Rainbow
 
 using Rainbow.ImgLib.Filters;
+using SkiaSharp;
 using System.Drawing;
 
 namespace Rainbow.ImgLib.Encoding
@@ -40,15 +41,15 @@ namespace Rainbow.ImgLib.Encoding
             this.decoder = decoder;
         }
 
-        public Image DecodeImage()
+        public SKBitmap DecodeImage()
         {
             if (width == 0 || height == 0)
             {
                 return null;
             }
 
-            Color[] colors = decoder.DecodeColors(pixelData);
-            Bitmap bmp = new Bitmap(width, height);
+            SKColor[] colors = decoder.DecodeColors(pixelData);
+            SKBitmap bmp = new SKBitmap(width, height);
 
             for (int y = 0; y < height; y++)
             {

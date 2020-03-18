@@ -15,6 +15,7 @@
 //Official repository and contact information can be found at
 //http://github.com/marco-calautti/Rainbow
 
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -84,7 +85,7 @@ namespace Rainbow.ImgLib.Filters
         }
     }
 
-    public abstract class PaletteFilter : Filter<Color>
+    public abstract class PaletteFilter : Filter<SKColor>
     {
 
     }

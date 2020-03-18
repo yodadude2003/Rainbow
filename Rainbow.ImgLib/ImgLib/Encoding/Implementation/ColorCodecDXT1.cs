@@ -24,13 +24,14 @@ using System.Text;
 using Rainbow.ImgLib.Common;
 using System.Drawing;
 using Rainbow.ImgLib.Filters;
+using SkiaSharp;
 
 namespace Rainbow.ImgLib.Encoding.Implementation
 {
     public class ColorCodecDXT1 : ColorCodecEndiannessDependent
     {
         private readonly int width, height;
-        private static Color[] clut = new Color[4];
+        private static SKColor[] clut = new SKColor[4];
 
         public ColorCodecDXT1(ByteOrder order, int width, int height):
             base(order)
@@ -39,7 +40,7 @@ namespace Rainbow.ImgLib.Encoding.Implementation
             this.height = height;
         }
 
-        public override Color[] DecodeColors(byte[] colors, int start, int length)
+        public override SKColor[] DecodeColors(byte[] colors, int start, int length)
         {
             ImageFilter filter = GetImageFilter();
 
@@ -54,8 +55,8 @@ namespace Rainbow.ImgLib.Encoding.Implementation
                 reader = new BinaryReader(new MemoryStream(colors, start, length));
             }
 
-            Color[] decoded = new Color[FullWidth * FullHeight];
-            Color[] tile = new Color[4 * 4];
+            SKColor[] decoded = new SKColor[FullWidth * FullHeight];
+            SKColor[] tile = new SKColor[4 * 4];
 
             for (int y = 0; y < FullHeight; y += 4)
             {
@@ -77,7 +78,7 @@ namespace Rainbow.ImgLib.Encoding.Implementation
                 return decoded;
             }
 
-            Color[] decodedRealSize = new Color[width * height];
+            SKColor[] decodedRealSize = new SKColor[width * height];
 
             int k = 0;
             for (int y = 0; y < height; y++)
@@ -92,7 +93,7 @@ namespace Rainbow.ImgLib.Encoding.Implementation
 
         }
 
-        public override byte[] EncodeColors(Color[] colors, int start, int length)
+        public override byte[] EncodeColors(SKColor[] colors, int start, int length)
         {
             throw new NotImplementedException();
         }
@@ -117,7 +118,7 @@ namespace Rainbow.ImgLib.Encoding.Implementation
             return GetFullWidth(width) * GetFullHeight(height) * BitDepth / 8;
         }
 
-        protected void DecodeDXT1Block(BinaryReader reader, Color[] tile)
+        protected void DecodeDXT1Block(BinaryReader reader, SKColor[] tile)
         {
 
             ushort color1, color2;
@@ -134,8 +135,8 @@ namespace Rainbow.ImgLib.Encoding.Implementation
             int red1 = ImageUtils.Conv5To8((color1 >> 11) & 0x1F);
             int red2 = ImageUtils.Conv5To8((color2 >> 11) & 0x1F);
 
-	        clut[0] = Color.FromArgb(255,red1, green1, blue1);
-            clut[1] = Color.FromArgb(255, red2, green2, blue2);
+	        clut[0] = new SKColor((byte)red1, (byte)green1, (byte)blue1);
+            clut[1] = new SKColor((byte)red2, (byte)green2, (byte)blue2);
 
             if (color1 > color2)
             {
@@ -147,15 +148,15 @@ namespace Rainbow.ImgLib.Encoding.Implementation
                 int green4 = (2 * green2 + green1) / 3;
                 int red4 = (2 * red2 + red1) / 3;
 
-                clut[2] = Color.FromArgb(255, red3,green3,blue3);
-                clut[3] = Color.FromArgb(255,red4,green4,blue4);
+                clut[2] = new SKColor((byte)red3, (byte)green3, (byte)blue3);
+                clut[3] = new SKColor((byte)red4, (byte)green4, (byte)blue4);
             }
             else
             {
-                clut[2] = Color.FromArgb(255, (red1 + red2)  / 2, // Average
-                                              (green1 + green2) / 2,
-                                              (blue1 + blue2) / 2);
-                clut[3] = Color.FromArgb(0, 0, 0, 0);  // Color2 but transparent
+                clut[2] = new SKColor((byte)((red1 + red2)  / 2), // Average
+                                              (byte)((green1 + green2) / 2),
+                                              (byte)((blue1 + blue2) / 2));
+                clut[3] = SKColor.Empty;  // Color2 but transparent
             }
 
             int k=0;

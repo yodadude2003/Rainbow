@@ -15,6 +15,7 @@
 //Official repository and contact information can be found at
 //http://github.com/marco-calautti/Rainbow
 
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -75,15 +76,15 @@ namespace Rainbow.ImgLib.Common
             return cc83[value];
         }
 
-        public static Color ToGrayScale(Color color)
+        public static SKColor ToGrayScale(SKColor color)
         {
-            if (color.R == color.G && color.G == color.B)
+            if (color.Red == color.Green && color.Green == color.Blue)
             {
                 return color;
             }
 
-            int intensity = (int)(color.R * 0.2126 + color.G * 0.7152 + color.B * 0.0722);
-            return Color.FromArgb(color.A, intensity, intensity, intensity);
+            int intensity = (int)(color.Red * 0.2126 + color.Green * 0.7152 + color.Blue * 0.0722);
+            return new SKColor((byte)intensity, (byte)intensity, (byte)intensity, color.Alpha);
         }
 
         // Color conversion tables taken from wiimms-szs-tools source code.

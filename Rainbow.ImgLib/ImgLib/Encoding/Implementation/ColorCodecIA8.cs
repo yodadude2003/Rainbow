@@ -16,6 +16,7 @@
 //http://github.com/marco-calautti/Rainbow
 
 using Rainbow.ImgLib.Common;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -30,32 +31,32 @@ namespace Rainbow.ImgLib.Encoding.Implementation
         public ColorCodecIA8(ByteOrder order):
             base(order) { }
 
-        public override Color[] DecodeColors(byte[] colors, int start, int length)
+        public override SKColor[] DecodeColors(byte[] colors, int start, int length)
         {
             BinaryReader reader = new BinaryReader(new MemoryStream(colors, start, length));
-            Color[] decoded = new Color[length / 2];
+            SKColor[] decoded = new SKColor[length / 2];
 
             for(int i=0;i<decoded.Length;i++)
             {
                 ushort data=reader.ReadUInt16(ByteOrder);
                 int alpha=(data>>8)&0xFF;
                 int intensity=data&0xFF;
-                decoded[i] = Color.FromArgb(alpha, intensity, intensity, intensity);
+                decoded[i] = new SKColor((byte)intensity, (byte)intensity, (byte)intensity, (byte)alpha);
             }
             reader.Close();
             return decoded;
         }
 
-        public override byte[] EncodeColors(System.Drawing.Color[] colors, int start, int length)
+        public override byte[] EncodeColors(SKColor[] colors, int start, int length)
         {
             byte[] encoded = new byte[length * 2];
 
             for(int i=0; i<length; i++)
             {
-                Color gray = ImageUtils.ToGrayScale(colors[start + i]);
+                SKColor gray = ImageUtils.ToGrayScale(colors[start + i]);
 
-                encoded[i * 2] = ByteOrder == ByteOrder.LittleEndian ? gray.R : gray.A;
-                encoded[i * 2 + 1] = ByteOrder == ByteOrder.LittleEndian ? gray.A : gray.R;
+                encoded[i * 2] = ByteOrder == ByteOrder.LittleEndian ? gray.Red : gray.Alpha;
+                encoded[i * 2 + 1] = ByteOrder == ByteOrder.LittleEndian ? gray.Alpha : gray.Red;
             }
 
             return encoded;

@@ -15,6 +15,7 @@
 //Official repository and contact information can be found at
 //http://github.com/marco-calautti/Rainbow
 
+using SkiaSharp;
 using System.Drawing;
 
 namespace Rainbow.ImgLib.Encoding
@@ -30,6 +31,6 @@ namespace Rainbow.ImgLib.Encoding
         /// is zero, null is returned.
         /// </summary>
         /// <returns></returns>
-        Image DecodeImage();
+        SKBitmap DecodeImage();
     }
 }

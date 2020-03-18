@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 
 using Rainbow.ImgLib.Common;
+using SkiaSharp;
 
 namespace Rainbow.ImgLib.Encoding.Implementation
 {
@@ -32,11 +33,11 @@ namespace Rainbow.ImgLib.Encoding.Implementation
         public ColorCodecRGB565(ByteOrder order):
             base(order) { }
 
-        public override Color[] DecodeColors(byte[] colors, int start, int length)
+        public override SKColor[] DecodeColors(byte[] colors, int start, int length)
         {
             BinaryReader reader = new BinaryReader(new MemoryStream(colors, start, length));
 
-            Color[] encoded = new Color[length / 2];
+            SKColor[] encoded = new SKColor[length / 2];
 
             for (int i = 0; i < encoded.Length; i++)
             {
@@ -49,7 +50,7 @@ namespace Rainbow.ImgLib.Encoding.Implementation
                 green = ImageUtils.Conv6To8((color >> 5) & 0x3f);
                 blue = ImageUtils.Conv5To8((color) & 0x1f);
 
-                encoded[i] = Color.FromArgb(255, red, green, blue);
+                encoded[i] = new SKColor((byte)red, (byte)green, (byte)blue);
             }
             reader.Close();
             return encoded;
@@ -60,15 +61,15 @@ namespace Rainbow.ImgLib.Encoding.Implementation
             get { return 16; }
         }
 
-        public override byte[] EncodeColors(Color[] colors, int start, int length)
+        public override byte[] EncodeColors(SKColor[] colors, int start, int length)
         {
             byte[] encoded = new byte[length * 2];
 
             for(int i=0;i<length;i++)
             {
-                int red = ImageUtils.Conv8To5(colors[start + i].R);
-                int green = ImageUtils.Conv8To6(colors[start + i].G);
-                int blue = ImageUtils.Conv8To5(colors[start + i].B);
+                int red = ImageUtils.Conv8To5(colors[start + i].Red);
+                int green = ImageUtils.Conv8To6(colors[start + i].Green);
+                int blue = ImageUtils.Conv8To5(colors[start + i].Blue);
 
                 ushort color = (ushort)(((red & 0x1F) << 11) | ((green & 0x3F) << 5) | (blue & 0x1F));
                 encoded[i * 2] = (byte)(ByteOrder == ByteOrder.LittleEndian ? color & 0xFF : (color >> 8) & 0xFF);

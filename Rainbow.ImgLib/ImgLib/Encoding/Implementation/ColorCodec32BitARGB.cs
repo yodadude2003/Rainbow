@@ -15,6 +15,7 @@
 //Official repository and contact information can be found at
 //http://github.com/marco-calautti/Rainbow
 
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,13 +26,13 @@ namespace Rainbow.ImgLib.Encoding.Implementation
 {
     public class ColorCodec32BitARGB : ColorCodec
     {
-        public override Color[] DecodeColors(byte[] palette, int start, int size)
+        public override SKColor[] DecodeColors(byte[] palette, int start, int size)
         {
-            List<Color> pal = new List<Color>();
+            List<SKColor> pal = new List<SKColor>();
 
             for (int i = 0; i < size / 4; i++)
             {
-                pal.Add(Color.FromArgb(palette[start + i * 4], palette[start + i * 4 + 1], palette[start + i * 4 + 2], palette[start + i * 4 + 3]));
+                pal.Add(new SKColor(palette[start + i * 4 + 1], palette[start + i * 4 + 2], palette[start + i * 4 + 3], palette[start + i * 4]));
             }
 
             return pal.ToArray();
@@ -39,16 +40,16 @@ namespace Rainbow.ImgLib.Encoding.Implementation
 
         public override int BitDepth { get { return 32; } }
 
-        public override byte[] EncodeColors(Color[] colors, int start, int length)
+        public override byte[] EncodeColors(SKColor[] colors, int start, int length)
         {
             byte[] encoded = new byte[length * 4];
 
             for (int i = 0; i < encoded.Length; i += 4)
             {
-                encoded[i] = colors[start + i / 4].A;
-                encoded[i + 1] = colors[start + i / 4].R;
-                encoded[i + 2] = colors[start + i / 4].G;
-                encoded[i + 3] = colors[start + i / 4].B;
+                encoded[i] = colors[start + i / 4].Alpha;
+                encoded[i + 1] = colors[start + i / 4].Red;
+                encoded[i + 2] = colors[start + i / 4].Green;
+                encoded[i + 3] = colors[start + i / 4].Blue;
             }
 
             return encoded;

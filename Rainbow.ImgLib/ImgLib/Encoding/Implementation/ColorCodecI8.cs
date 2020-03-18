@@ -16,6 +16,7 @@
 //http://github.com/marco-calautti/Rainbow
 
 using Rainbow.ImgLib.Common;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -28,27 +29,27 @@ namespace Rainbow.ImgLib.Encoding.Implementation
     public class ColorCodecI8: ColorCodec
     {
 
-        public override Color[] DecodeColors(byte[] colors, int start, int length)
+        public override SKColor[] DecodeColors(byte[] colors, int start, int length)
         {
             BinaryReader reader = new BinaryReader(new MemoryStream(colors, start, length));
-            Color[] decoded = new Color[length];
+            SKColor[] decoded = new SKColor[length];
 
             for(int i=0;i<decoded.Length;i++)
             {
                 int intensity = reader.ReadByte();
-                decoded[i] = Color.FromArgb(255, intensity, intensity, intensity);
+                decoded[i] = new SKColor((byte)intensity, (byte)intensity, (byte)intensity);
             }
             reader.Close();
             return decoded;
         }
 
-        public override byte[] EncodeColors(System.Drawing.Color[] colors, int start, int length)
+        public override byte[] EncodeColors(SKColor[] colors, int start, int length)
         {
             byte[] encoded = new byte[length];
 
             for(int i=0;i<length;i++)
             {
-                encoded[i] = ImageUtils.ToGrayScale(colors[start + i]).R;
+                encoded[i] = ImageUtils.ToGrayScale(colors[start + i]).Red;
             }
 
             return encoded;

@@ -16,6 +16,7 @@
 //http://github.com/marco-calautti/Rainbow
 
 using Rainbow.ImgLib.Common;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -29,9 +30,9 @@ namespace Rainbow.ImgLib.Encoding.Implementation
         public ColorCodecI4(ByteOrder order):
             base(order) { }
 
-        public override Color[] DecodeColors(byte[] colors, int start, int length)
+        public override SKColor[] DecodeColors(byte[] colors, int start, int length)
         {
-            Color[] decoded = new Color[length * 2];
+            SKColor[] decoded = new SKColor[length * 2];
 
             for(int i=0;i<length;i++)
             {
@@ -42,24 +43,24 @@ namespace Rainbow.ImgLib.Encoding.Implementation
                 first = ImageUtils.Conv4To8(first);
                 second = ImageUtils.Conv4To8(second);
 
-                decoded[i * 2]  = Color.FromArgb(255, first, first, first);
-                decoded[i * 2 + 1] = Color.FromArgb(255, second, second, second);
+                decoded[i * 2]  = new SKColor((byte)first, (byte)first, (byte)first);
+                decoded[i * 2 + 1] = new SKColor((byte)second, (byte)second, (byte)second);
             }
 
             return decoded;
         }
 
-        public override byte[] EncodeColors(Color[] colors, int start, int length)
+        public override byte[] EncodeColors(SKColor[] colors, int start, int length)
         {
             byte[] encoded = new byte[(length +1)/ 2];
 
             for(int i=0;i<length;i+=2)
             {
-                Color first = ImageUtils.ToGrayScale(colors[start + i]);
-                Color second = i == length - 1 ? Color.Black : ImageUtils.ToGrayScale(colors[start + i + 1]);
+                SKColor first = ImageUtils.ToGrayScale(colors[start + i]);
+                SKColor second = i == length - 1 ? SKColors.Black : ImageUtils.ToGrayScale(colors[start + i + 1]);
 
-                int firstNibble = ImageUtils.Conv8To4(first.R);
-                int secondNibble = ImageUtils.Conv8To4(second.R);
+                int firstNibble = ImageUtils.Conv8To4(first.Red);
+                int secondNibble = ImageUtils.Conv8To4(second.Red);
 
                 byte value = 0;
 

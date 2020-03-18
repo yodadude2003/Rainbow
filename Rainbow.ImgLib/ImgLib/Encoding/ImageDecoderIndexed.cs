@@ -16,6 +16,7 @@
 //http://github.com/marco-calautti/Rainbow
 
 using Rainbow.ImgLib.Filters;
+using SkiaSharp;
 using System;
 using System.Drawing;
 
@@ -30,9 +31,9 @@ namespace Rainbow.ImgLib.Encoding
 
         protected IndexCodec indexCodec;
 
-        protected Color[] grayScale;
+        protected SKColor[] grayScale;
 
-        public ImageDecoderIndexed(byte[] pixelData, int width, int height, IndexCodec codec, Color[] palette = null, ImageFilter imageFilter=null, PaletteFilter paletteFilter=null)
+        public ImageDecoderIndexed(byte[] pixelData, int width, int height, IndexCodec codec, SKColor[] palette = null, ImageFilter imageFilter=null, PaletteFilter paletteFilter=null)
         {
             this.pixelData = pixelData;
             if (imageFilter != null)
@@ -42,11 +43,11 @@ namespace Rainbow.ImgLib.Encoding
             this.height = height;
             this.indexCodec = codec;
 
-            grayScale = new Color[1 << codec.BitDepth];
+            grayScale = new SKColor[1 << codec.BitDepth];
 
             for (int i = 0; i < grayScale.Length; i++)
             {
-                grayScale[i] = Color.FromArgb(255, i * (256 / grayScale.Length), i * (256 / grayScale.Length), i * (256 / grayScale.Length));
+                grayScale[i] = new SKColor((byte)(i * (256 / grayScale.Length)), (byte)(i * (256 / grayScale.Length)), (byte)(i * (256 / grayScale.Length)));
             }
 
             if (paletteFilter != null && palette != null)
@@ -55,37 +56,37 @@ namespace Rainbow.ImgLib.Encoding
             }
             else if (palette == null)
             {
-                palette = (Color[])grayScale.Clone();
+                palette = (SKColor[])grayScale.Clone();
                 Palette = palette;
             }
             else
             {
-                Palette = (Color[])palette.Clone();
+                Palette = (SKColor[])palette.Clone();
             }
         }
 
-        public Color[] Palette { get; set; }
+        public SKColor[] Palette { get; set; }
 
         public int BitDepth { get { return indexCodec.BitDepth; } }
 
-        public Image ReferenceImage
+        public SKBitmap ReferenceImage
         {
             get { return DecodeImage(grayScale); }
         }
 
-        public Image DecodeImage()
+        public SKBitmap DecodeImage()
         {
             return DecodeImage(Palette);
         }
 
-        private Image DecodeImage(Color[] pal)
+        private SKBitmap DecodeImage(SKColor[] pal)
         {
             if (width == 0 || height == 0)
             {
                 return null;
             }
 
-            Bitmap bmp = new Bitmap(width, height);
+            SKBitmap bmp = new SKBitmap(width, height);
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)

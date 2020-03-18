@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 
 using Rainbow.ImgLib.Common;
+using SkiaSharp;
 
 namespace Rainbow.ImgLib.Encoding.Implementation
 {
@@ -31,11 +32,11 @@ namespace Rainbow.ImgLib.Encoding.Implementation
         public ColorCodecRGB5A3(ByteOrder order):
             base(order) { }
 
-        public override Color[] DecodeColors(byte[] colors, int start, int length)
+        public override SKColor[] DecodeColors(byte[] colors, int start, int length)
         {
             BinaryReader reader = new BinaryReader(new MemoryStream(colors, start, length));
 
-            Color[] encoded = new Color[length / 2];
+            SKColor[] encoded = new SKColor[length / 2];
 
             for (int i = 0; i < encoded.Length; i++)
             {
@@ -59,7 +60,7 @@ namespace Rainbow.ImgLib.Encoding.Implementation
                     blue = ImageUtils.Conv4To8((color) & 0xf);
                 }
 
-                encoded[i] = Color.FromArgb(alpha, red, green, blue);
+                encoded[i] = new SKColor((byte)red, (byte)green, (byte)blue, (byte)alpha);
             }
             reader.Close();
             return encoded;
@@ -70,7 +71,7 @@ namespace Rainbow.ImgLib.Encoding.Implementation
             get { return 16; }
         }
 
-        public override byte[] EncodeColors(Color[] colors, int start, int length)
+        public override byte[] EncodeColors(SKColor[] colors, int start, int length)
         {
             byte[] encoded = new byte[length * 2];
 
@@ -79,20 +80,20 @@ namespace Rainbow.ImgLib.Encoding.Implementation
                 ushort color = 0;
                 int red, green, blue;
 
-                int alpha = ImageUtils.Conv8To3(colors[start + i].A);
+                int alpha = ImageUtils.Conv8To3(colors[start + i].Alpha);
                 if (alpha == 7) //we don't need alpha
                 {
-                    red = ImageUtils.Conv8To5(colors[start + i].R);
-                    green = ImageUtils.Conv8To5(colors[start + i].G);
-                    blue = ImageUtils.Conv8To5(colors[start + i].B);
+                    red = ImageUtils.Conv8To5(colors[start + i].Red);
+                    green = ImageUtils.Conv8To5(colors[start + i].Green);
+                    blue = ImageUtils.Conv8To5(colors[start + i].Blue);
                     color = (ushort)(((red & 0x1F) << 10) | ((green & 0x1F) << 5) | blue & 0x1F);
                     color |= 0x8000; //mark as no alpha
                 }
                 else
                 {
-                    red = ImageUtils.Conv8To4(colors[start + i].R);
-                    green = ImageUtils.Conv8To4(colors[start + i].G);
-                    blue = ImageUtils.Conv8To4(colors[start + i].B);
+                    red = ImageUtils.Conv8To4(colors[start + i].Red);
+                    green = ImageUtils.Conv8To4(colors[start + i].Green);
+                    blue = ImageUtils.Conv8To4(colors[start + i].Blue);
                     color = (ushort)( ((alpha & 0x7) << 12) | ((red & 0xF) << 8) | ((green & 0xF) << 4) | blue & 0xF);
                 }
 

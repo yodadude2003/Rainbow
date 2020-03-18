@@ -15,6 +15,7 @@
 //Official repository and contact information can be found at
 //http://github.com/marco-calautti/Rainbow
 
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -31,9 +32,9 @@ namespace Rainbow.ImgLib.Filters
             this.bitDepth = bitDepth;
         }
 
-        public override Color[] Defilter(Color[] originalData, int index, int length)
+        public override SKColor[] Defilter(SKColor[] originalData, int index, int length)
         {
-            Color[] newColors = new Color[length];
+            SKColor[] newColors = new SKColor[length];
 
             if(bitDepth!=8)
             {
@@ -65,7 +66,7 @@ namespace Rainbow.ImgLib.Filters
             return newColors;
         }
 
-        public override Color[] ApplyFilter(Color[] originalData, int index, int length)
+        public override SKColor[] ApplyFilter(SKColor[] originalData, int index, int length)
         {
             return Defilter(originalData, index, length);
         }

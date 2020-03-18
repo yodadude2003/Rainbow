@@ -16,6 +16,7 @@
 //http://github.com/marco-calautti/Rainbow
 
 using Rainbow.ImgLib.Common;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -27,9 +28,9 @@ namespace Rainbow.ImgLib.Encoding.Implementation
 {
     public class ColorCodec16BitLEABGR : ColorCodec
     {
-        public override Color[] DecodeColors(byte[] palette, int start, int size)
+        public override SKColor[] DecodeColors(byte[] palette, int start, int size)
         {
-            List<Color> pal = new List<Color>();
+            List<SKColor> pal = new List<SKColor>();
 
             BinaryReader reader = new BinaryReader(new MemoryStream(palette, start, size));
             for (int i = 0; i < size / 2; i++)
@@ -44,23 +45,22 @@ namespace Rainbow.ImgLib.Encoding.Implementation
                 data >>= 5;
                 int alpha = data == 0 ? 0 : 255;
 
-                pal.Add(Color.FromArgb(alpha, ImageUtils.Conv5To8(red), ImageUtils.Conv5To8(green), ImageUtils.Conv5To8(blue)));
+                pal.Add(new SKColor((byte)ImageUtils.Conv5To8(red), (byte)ImageUtils.Conv5To8(green), (byte)ImageUtils.Conv5To8(blue), (byte)alpha));
             }
 
             reader.Close();
             return pal.ToArray();
         }
 
-        public override byte[] EncodeColors(Color[] colors, int start, int length)
+        public override byte[] EncodeColors(SKColor[] colors, int start, int length)
         {
             byte[] palette = new byte[colors.Length * 2];
 
             for (int i = start; i < colors.Length; i++)
             {
-                ushort data = (ushort)(colors[i].A > 127 ? 0x8000 : 0);
+                ushort data = (ushort)(colors[i].Alpha > 127 ? 0x8000 : 0);
 
-                data |= (ushort)((ImageUtils.Conv8To5(colors[i].B) << 10) | (ImageUtils.Conv8To5(colors[i].G) << 5) | (ImageUtils.Conv8To5(colors[i].R) & 0x1F));
-                palette[(i - start) * 2] = (byte)(data & 0xFF);
+                data |= (ushort)((ImageUtils.Conv8To5(colors[i].Blue) << 10) | (ImageUtils.Conv8To5(colors[i].Green) << 5) | (ImageUtils.Conv8To5(colors[i].Red) & 0x1F));                palette[(i - start) * 2] = (byte)(data & 0xFF);
                 palette[(i - start) * 2 + 1] = (byte)(data >> 8);
             }
             return palette;

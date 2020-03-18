@@ -16,6 +16,7 @@
 //http://github.com/marco-calautti/Rainbow
 
 using Rainbow.ImgLib.Common;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -30,10 +31,10 @@ namespace Rainbow.ImgLib.Encoding.Implementation
         public ColorCodecIA4(ByteOrder order) :
             base(order) { }
 
-        public override Color[] DecodeColors(byte[] colors, int start, int length)
+        public override SKColor[] DecodeColors(byte[] colors, int start, int length)
         {
             BinaryReader reader = new BinaryReader(new MemoryStream(colors, start, length));
-            Color[] decoded = new Color[length];
+            SKColor[] decoded = new SKColor[length];
 
             for(int i=0;i<decoded.Length;i++)
             {
@@ -44,22 +45,22 @@ namespace Rainbow.ImgLib.Encoding.Implementation
 
                 alpha = ImageUtils.Conv4To8(alpha);
                 intensity = ImageUtils.Conv4To8(intensity);
-                decoded[i] = Color.FromArgb(alpha, intensity, intensity, intensity);
+                decoded[i] = new SKColor((byte)intensity, (byte)intensity, (byte)intensity, (byte)alpha);
             }
             reader.Close();
             return decoded;
         }
 
-        public override byte[] EncodeColors(System.Drawing.Color[] colors, int start, int length)
+        public override byte[] EncodeColors(SKColor[] colors, int start, int length)
         {
             byte[] encoded = new byte[length];
 
             for(int i=0; i<length; i++)
             {
-                Color gray = ImageUtils.ToGrayScale(colors[start + i]);
+                SKColor gray = ImageUtils.ToGrayScale(colors[start + i]);
 
-                int alphaNibble = ImageUtils.Conv8To4(gray.A);
-                int intensityNibble = ImageUtils.Conv8To4(gray.R);
+                int alphaNibble = ImageUtils.Conv8To4(gray.Alpha);
+                int intensityNibble = ImageUtils.Conv8To4(gray.Red);
 
                 byte value = 0;
                 if(ByteOrder == ByteOrder.LittleEndian)
