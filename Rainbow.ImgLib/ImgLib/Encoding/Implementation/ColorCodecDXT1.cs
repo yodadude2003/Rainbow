@@ -65,8 +65,9 @@ namespace Rainbow.ImgLib.Encoding.Implementation
                     DecodeDXT1Block(reader, tile);
                     for (int line = 0; line < 4; line++)
                     {
-                        Array.Copy(tile, line * 4, decoded, FullWidth * (y + line) + x, 4);
-
+                        int destIndex = FullWidth * (y + line) + 
+                            (ByteOrder == ByteOrder.BigEndian ? x : FullWidth - (x + 4));
+                        Array.Copy(tile, line * 4, decoded, destIndex, 4);
                     }
                 }
             }
